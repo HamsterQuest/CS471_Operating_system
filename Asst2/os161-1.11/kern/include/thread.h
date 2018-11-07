@@ -21,6 +21,9 @@ struct thread {
 	const void *t_sleepaddr;
 	char *t_stack;
 	
+	int pid;	//pid is assigned when thread_create is called in thread.c
+	int ppid;
+	int cpid;
 	/**********************************************************/
 	/* Public thread members - can be used by other code      */
 	/**********************************************************/

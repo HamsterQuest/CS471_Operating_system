@@ -62,6 +62,9 @@ thread_create(const char *name)
 	// If you add things to the thread structure, be sure to initialize
 	// them here.
 	
+	//numthread is incremented at the end of other functions that involve creating a new process/thread
+        thread->pid = numthread + 1;
+	
 	return thread;
 }
 

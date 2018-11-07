@@ -7,5 +7,11 @@
 
 int sys_reboot(int code);
 
+//system call functions for PA2
+int sys_getpid(int code);
+int sys_fork(int code);
+int sys_execv(int code);
+int sys_waitpid(int code);
+int sys_exit(int code);
 
 #endif /* _SYSCALL_H_ */

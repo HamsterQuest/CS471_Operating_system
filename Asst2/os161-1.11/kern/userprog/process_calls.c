@@ -52,7 +52,24 @@ void child_after_fork(void *addrspace_addr, unsigned long tf_addr) {
 }
 
 int sys_fork(struct trapframe *tf, int *retval) {
-	return -1;
+	// Copy address space
+	struct addrspace *new_addrspace;
+	as_copy(curthread->t_vmspace, &new_addrspace);
+	
+	// Initialize new thread and fork
+	// Arrange child_after_fork to be called
+	struct thread *new_thread;
+	int err = thread_fork(curthread->t_name, (void *) new_addrspace, 
+			(unsigned long) tf, child_after_fork, &new_thread);
+	
+	// something something retval should be set to the pid?
+	
+	// Return -1 to the system call handler if there was an error
+	if(err) {
+		return -1;
+	} else {
+		return 0;
+	}
 }
 
 int sys_execv(const char *program, char **args){

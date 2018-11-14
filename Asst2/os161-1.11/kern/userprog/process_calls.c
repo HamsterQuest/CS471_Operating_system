@@ -7,14 +7,7 @@
 #include <addrspace.h>
 #include <syscall.h>
 #include <process_calls.h>
-
-pid_t get_next_pid(void) {
-	// find the next available pid
-		
-	// too many processes
-	panic("No pids available!\n");        
-	return -1;
-}
+#include <array.h>
 
 int sys_getpid(int *retval) {
 	//something like this.
@@ -24,6 +17,13 @@ int sys_getpid(int *retval) {
 	return 0;
 }
 pid_t sys_waitpid(pid_t pid, int *status, int options){
+	//errer if no thread with pid specified
+	if(pidArray[pid] == NULL)
+		return EFAULT;
+		
+	//wake me up before you exit
+	array_add(pidArray[pid]->sleepers, curthread);
+	thread_sleep(curthread);
 	return pid;
 }
 
@@ -63,12 +63,13 @@ int sys_fork(struct trapframe *tf, int *retval) {
 			(unsigned long) tf, child_after_fork, &new_thread);
 	
 	// something something retval should be set to the pid?
+	*retval = new_thread->pid;
 	
 	// Return -1 to the system call handler if there was an error
 	if(err) {
-		return -1;
+			return -1;
 	} else {
-		return 0;
+			return 0;
 	}
 }
 

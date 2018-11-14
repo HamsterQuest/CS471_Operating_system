@@ -4,13 +4,11 @@
 #include <addrspace.h>
 #include <machine/trapframe.h>
 #include <curthread.h>
-#include <addrspace.h>
 #include <syscall.h>
 #include <process_calls.h>
 #include <array.h>
 
 int sys_getpid(int *retval) {
-	//something like this.
 	*retval = curthread->pid;
 
 	//never fails
@@ -54,23 +52,22 @@ void child_after_fork(void *addrspace_addr, unsigned long tf_addr) {
 int sys_fork(struct trapframe *tf, int *retval) {
 	// Copy address space
 	struct addrspace *new_addrspace;
-	as_copy(curthread->t_vmspace, &new_addrspace);
+	int err;
+	if(err = as_copy(curthread->t_vmspace, &new_addrspace)){
+		return err;
+	}
 	
 	// Initialize new thread and fork
 	// Arrange child_after_fork to be called
 	struct thread *new_thread;
-	int err = thread_fork(curthread->t_name, (void *) new_addrspace, 
+	err = thread_fork(curthread->t_name, (void *) new_addrspace, 
 			(unsigned long) tf, child_after_fork, &new_thread);
 	
-	// something something retval should be set to the pid?
+	// set retval to pid
 	*retval = new_thread->pid;
 	
-	// Return -1 to the system call handler if there was an error
-	if(err) {
-			return -1;
-	} else {
-			return 0;
-	}
+	// Return thread_forks's error
+	return err;
 }
 
 int sys_execv(const char *program, char **args){

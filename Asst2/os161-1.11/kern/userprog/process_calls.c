@@ -4,7 +4,6 @@
 #include <addrspace.h>
 #include <machine/trapframe.h>
 #include <curthread.h>
-#include <addrspace.h>
 #include <syscall.h>
 #include <process_calls.h>
 
@@ -61,14 +60,11 @@ int sys_fork(struct trapframe *tf, int *retval) {
 	int err = thread_fork(curthread->t_name, (void *) new_addrspace, 
 			(unsigned long) tf, child_after_fork, &new_thread);
 	
-	// something something retval should be set to the pid?
+	// set retval to pid
+	*retval = new_thread->pid;
 	
-	// Return -1 to the system call handler if there was an error
-	if(err) {
-		return -1;
-	} else {
-		return 0;
-	}
+	// Return thread_forks's error
+	return err;
 }
 
 int sys_execv(const char *program, char **args){

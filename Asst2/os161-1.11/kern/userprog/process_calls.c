@@ -17,7 +17,6 @@ pid_t get_next_pid(void) {
 }
 
 int sys_getpid(int *retval) {
-	//something like this.
 	*retval = curthread->pid;
 
 	//never fails
